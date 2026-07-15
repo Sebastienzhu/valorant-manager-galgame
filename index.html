@@ -730,7 +730,8 @@
           return { placed: false, slot: "教练" };
         }
 
-        const targetRole = candidate.role === "自由人" ? "空栏位" : candidate.role;
+        const openRole = roles.find((role) => role !== "空栏位" && !state.roster[role]);
+        const targetRole = candidate.role === "自由人" ? (openRole || "空栏位") : candidate.role;
         const current = state.roster[targetRole];
         if (!current) {
           state.roster[targetRole] = { ...candidate, favor };
