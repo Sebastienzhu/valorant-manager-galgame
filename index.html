@@ -429,7 +429,7 @@
   <script>
     (() => {
       const maxDays = 10;
-      const roles = ["决斗", "先锋", "控场", "哨位", "自由人", "教练"];
+      const roles = ["决斗", "先锋", "控场", "哨位", "空栏位"];
       const locations = [
         { id: "snack", name: "零食路", desc: "知名选手最容易刷新的神秘小道。有人买水，有人找酱味大鸡。", fixed: ["zmjjkk", "chichoo", "nobody", "s1mon", "haodong"], event: "snack" },
         { id: "canteen", name: "食堂", desc: "饭点信息量最大，大概率刷新 vookashu、rarga 和正在取东西的 muggle。", fixed: ["vookashu", "rarga", "muggle"], event: "meal" },
@@ -486,7 +486,7 @@
           ["要求他第一天就变成世界第一控场", -7, 1, "他看着你：经理也需要成长。"]
         ]),
         player("nephh", "nephh", "冷静队长", "哨位", "PRX", 4, 23, 60, "#90be6d", "#577590", "少量外赛区 cameo。关键词：冷静、补位、别乱。", [
-          ["请他做短期补位核心，尊重 CN 体系", 20, 7, "nephh：可以，先把沟通词表统一。"],
+          ["请他去木叶村当个忍者", 20, 7, "nephh：可以，但忍术和补位都要先把沟通词表统一。"],
           ["给他自由度，让他把防守节奏稳住", 22, 6, "他点头：稳定，也是进攻的一部分。"],
           ["只让他来教发布会英文", -4, 3, "他礼貌笑了：我也会打比赛。"]
         ]),
@@ -689,6 +689,40 @@
         return shuffle(picked).map((candidate) => ({ type: "player", candidate }));
       }
 
+      function visibleRoles() {
+        const list = [...roles];
+        if (state.roster["教练"]) list.push("教练");
+        return list;
+      }
+
+      function placePlayer(candidate, favor) {
+        if (candidate.role === "教练") {
+          const currentCoach = state.roster["教练"];
+          if (!currentCoach || favor >= currentCoach.favor) {
+            state.roster["教练"] = { ...candidate, favor };
+            return { placed: true, slot: "教练", replaced: Boolean(currentCoach) };
+          }
+          return { placed: false, slot: "教练" };
+        }
+
+        const targetRole = candidate.role === "自由人" ? "空栏位" : candidate.role;
+        const current = state.roster[targetRole];
+        if (!current || favor >= current.favor) {
+          state.roster[targetRole] = { ...candidate, favor };
+          return { placed: true, slot: targetRole, replaced: Boolean(current) };
+        }
+
+        if (targetRole !== "空栏位") {
+          const flex = state.roster["空栏位"];
+          if (!flex || favor >= flex.favor) {
+            state.roster["空栏位"] = { ...candidate, favor };
+            return { placed: true, slot: "空栏位", replaced: Boolean(flex) };
+          }
+        }
+
+        return { placed: false, slot: targetRole };
+      }
+
       function escapeHtml(value) {
         return String(value).replace(/[&<>"']/g, (char) => ({
           "&": "&amp;",
@@ -740,7 +774,7 @@
           <div class="pill">已签 ${state.signedIds.length}</div>
         `;
 
-        slotsEl.innerHTML = roles.map((role) => {
+        slotsEl.innerHTML = visibleRoles().map((role) => {
           const player = state.roster[role];
           return `<div class="slot"><b>${role}</b>${player ? escapeHtml(player.name) + " · " + escapeHtml(player.nick) : "空缺，老板正在做梦"}</div>`;
         }).join("");
@@ -868,11 +902,10 @@
 
         if (canInvite) {
           state.budget -= candidate.cost;
-          const current = state.roster[candidate.role];
-          if (!current || favor >= current.favor) {
-            state.roster[candidate.role] = { ...candidate, favor };
+          const placement = placePlayer(candidate, favor);
+          if (placement.placed) {
             if (!state.signedIds.includes(candidate.id)) state.signedIds.push(candidate.id);
-            result = `${candidate.name} 答应加入，${candidate.role} 位更新。`;
+            result = `${candidate.name} 答应加入，${placement.slot} 更新。`;
             if (candidate.id === "siufatbb") {
               state.budget += 888;
               result = "肥公子进了战队心情很好，资助了你 888 预算。";
@@ -890,7 +923,7 @@
               result = `${candidate.name} 加入了战队。你隐约感觉这个项目组理解错了“跨界引援”。`;
             }
           } else {
-            result = `${candidate.name} 愿意来，但当前 ${candidate.role} 位好感更高，你选择暂不换人。`;
+            result = `${candidate.name} 愿意来，但当前 ${placement.slot} 好感更高，你选择暂不换人。`;
           }
         } else if (almost) {
           result = `${candidate.name} 被你聊动了，但${state.hype < candidate.minHype ? "声望不够响" : "预算不够厚"}，他说下次再看看。`;
@@ -919,8 +952,7 @@
       }
 
       function ending() {
-        const competitiveRoles = roles.filter((role) => role !== "教练");
-        const filled = competitiveRoles.filter((role) => state.roster[role]).length;
+        const filled = roles.filter((role) => state.roster[role]).length;
         const totalFavor = Object.values(state.roster).reduce((sum, player) => sum + player.favor + player.tier * 8, 0);
         const score = totalFavor + state.hype + Math.max(state.budget, -20) + state.ratingBoost;
         let title = "";
