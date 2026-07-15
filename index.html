@@ -431,7 +431,7 @@
       const maxDays = 10;
       const roles = ["决斗", "先锋", "控场", "哨位", "自由人"];
       const locations = [
-        { id: "snack", name: "零食路", desc: "EDG 选手最容易刷新的神秘小道。有人买水，有人找酱味大鸡。", fixed: ["zmjjkk", "chichoo", "nobody", "s1mon", "haodong"], event: "snack" },
+        { id: "snack", name: "零食路", desc: "知名选手最容易刷新的神秘小道。有人买水，有人找酱味大鸡。", fixed: ["zmjjkk", "chichoo", "nobody", "s1mon", "haodong"], event: "snack" },
         { id: "canteen", name: "食堂", desc: "饭点信息量最大，大概率刷新 vookashu 和 rarga。", fixed: ["vookashu", "rarga"], event: "meal" },
         { id: "club", name: "俱乐部", desc: "所有选手都有概率出现，经理的正经工作地点。", fixed: [], event: "club" },
         { id: "store", name: "便利店打工", desc: "大概率遇到 Smoggy、whzy、ZmjjKK，还能赚一点预算。", fixed: ["smoggy", "whzy", "zmjjkk"], event: "work" },
@@ -597,7 +597,6 @@
           name,
           nick,
           role,
-          team,
           tier,
           cost,
           minHype,
@@ -726,7 +725,7 @@
 
         mapEl.textContent = state.currentLocation ? state.currentLocation.name : "基地会议室";
         roleTitleEl.textContent = candidate ? `${candidate.name} · ${candidate.role}` : "战队经理";
-        roleDescEl.textContent = candidate ? `${candidate.team} · ${candidate.desc}` : "每天选一个地点行动，从三位候选人里搭话。预算、声望、好感度都会影响银河战舰能不能起飞。";
+        roleDescEl.textContent = candidate ? candidate.desc : "每天选一个地点行动，从三位候选人里搭话。预算、声望、好感度都会影响银河战舰能不能起飞。";
         drawPortrait(candidate);
       }
 
@@ -794,7 +793,7 @@
             text: `${option.title}（预算 -${option.cost}，声望 +${option.hype}）`,
             action: () => doEvent(option)
           } : {
-            text: `${option.candidate.name} · ${option.candidate.role} · ${option.candidate.team}（身价 ${option.candidate.cost}，声望门槛 ${option.candidate.minHype}）`,
+            text: `${option.candidate.name} · ${option.candidate.role}（身价 ${option.candidate.cost}，声望门槛 ${option.candidate.minHype}）`,
             action: () => talk(option.candidate)
           })
         });
@@ -822,7 +821,7 @@
         updateChrome(candidate);
         setDialogue({
           speaker: candidate.name,
-          tag: `${candidate.team} · ${candidate.nick}`,
+          tag: candidate.nick,
           line: `${candidate.name} 出现在${state.currentLocation.name}。你看了一眼报价表：预算要够，声望也不能太低，不然饼画得再圆也像 NPC 对话。`,
           meta: [`位置：${candidate.role}`, `身价：${candidate.cost}`, `声望门槛：${candidate.minHype}`, `当前好感：${state.favor[candidate.id] || 35}`],
           choices: candidate.choices.map((choice) => ({
