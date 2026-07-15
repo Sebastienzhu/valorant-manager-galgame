@@ -454,7 +454,7 @@
           ["给他高自由度防守体系，让对面进迷宫", 23, 6, "CHICHOO：这个站位有意思，对面会怀疑地图更新了。"],
           ["要求残局必须打快，方便剪短视频", -9, 1, "他抬头：短视频可以短，人生不能短。"]
         ]),
-        player("siufatbb", "SiuFatBB", "阅读听力", "控场", "TE", 5, 25, 65, "#f72585", "#4cc9f0", "听脚步像做听力，读站位像做阅读。关键词：阅读理解、听力满分。", [
+        player("siufatbb", "SiuFatBB", "阅读听力", "控场", "TE", 5, 1, 50, "#f72585", "#4cc9f0", "听脚步像做听力，读站位像做阅读。关键词：阅读理解、听力满分。", [
           ["递给他一套六级听力真题：请读一下对面默认", 28, 9, "他翻了两页：这题简单，对面 A 小有人，B 点在演。"],
           ["承诺控场位话语权，烟下给他来安排", 22, 6, "SiuFatBB：可以，阅读理解要有作答空间。"],
           ["说烟随便封，反正枪硬就赢", -8, 0, "他合上本子：你这阅读理解零分。"]
@@ -465,7 +465,7 @@
           ["让他多讲骚东西，节目效果第一", -5, 3, "他推了推键盘：节目效果可以有，但默认先走明白。"]
         ]),
         player("smoggy", "Smoggy", "递根烟", "自由人", "EDG", 5, 22, 55, "#4cc9f0", "#f72585", "低调稳定，补枪在线。关键词：递根烟、没声音但有击杀。", [
-          ["便利店门口递根烟：哥，来队里把枪线补上", 30, 8, "Smoggy 接过：能打。你这经理，懂社交也懂补枪。"],
+          ["便利店门口递根烟：哥，来队里把枪线补上", 30, 8, "Smoggy 接过：能打。你这经理，懂社交也懂补枪。", -1],
           ["给他最舒服的二点位和补枪路线", 24, 6, "他简短地回了两个字：能打。"],
           ["安排他兼任剪辑、运营、赛后小作文", -10, 0, "他抬头：你招的是自由人，不是自由职业者。"]
         ]),
@@ -603,7 +603,7 @@
           color,
           accent,
           desc,
-          choices: choices.map(([text, favor, hype, line]) => ({ text, favor, hype, line }))
+          choices: choices.map(([text, favor, hype, line, budget = 0]) => ({ text, favor, hype, line, budget }))
         };
       }
 
@@ -833,6 +833,7 @@
 
       function resolveTalk(candidate, choice) {
         const before = state.favor[candidate.id] || 35;
+        state.budget += choice.budget || 0;
         const hypePenalty = state.hype < candidate.minHype ? Math.ceil((candidate.minHype - state.hype) / 8) : 0;
         const budgetPenalty = state.budget < candidate.cost ? Math.ceil((candidate.cost - state.budget) / 4) : 0;
         const favor = before + choice.favor - hypePenalty - budgetPenalty;
@@ -850,6 +851,10 @@
             state.roster[candidate.role] = { ...candidate, favor };
             if (!state.signedIds.includes(candidate.id)) state.signedIds.push(candidate.id);
             result = `${candidate.name} 答应加入，${candidate.role} 位更新。`;
+            if (candidate.id === "siufatbb") {
+              state.budget += 8;
+              result = "肥公子进了战队心情很好，资助了你 8 预算。";
+            }
           } else {
             result = `${candidate.name} 愿意来，但当前 ${candidate.role} 位好感更高，你选择暂不换人。`;
           }
@@ -865,7 +870,7 @@
           speaker: candidate.name,
           tag: canInvite ? "邀请成功" : "邀请未成",
           line: `${choice.line} ${result}`,
-          meta: [`好感 ${favor}`, `声望 +${choice.hype}`, hypePenalty ? `声望惩罚 -${hypePenalty}` : "声望达标", budgetPenalty ? `预算压力 -${budgetPenalty}` : "预算达标"],
+          meta: [`好感 ${favor}`, `声望 +${choice.hype}`, choice.budget ? `预算 ${choice.budget}` : "选项预算 0", hypePenalty ? `声望惩罚 -${hypePenalty}` : "声望达标", budgetPenalty ? `预算压力 -${budgetPenalty}` : "预算达标"],
           choices: [{ text: state.day >= maxDays ? "进入最终结算" : "结束今天", primary: true, action: nextDay }]
         });
       }
