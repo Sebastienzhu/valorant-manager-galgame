@@ -824,7 +824,7 @@
           tag: candidate.nick,
           line: `${candidate.name} 出现在${state.currentLocation.name}。你看了一眼报价表：预算要够，声望也不能太低，不然饼画得再圆也像 NPC 对话。`,
           meta: [`位置：${candidate.role}`, `身价：${candidate.cost}`, `声望门槛：${candidate.minHype}`, `当前好感：${state.favor[candidate.id] || 35}`],
-          choices: candidate.choices.map((choice) => ({
+          choices: shuffle(candidate.choices).map((choice) => ({
             text: choice.text,
             action: () => resolveTalk(candidate, choice)
           }))
