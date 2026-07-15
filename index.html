@@ -675,7 +675,11 @@
           ];
         }
 
-        const pool = shuffle(candidates.filter((p) => !state.signedIds.includes(p.id)));
+        const pool = shuffle(candidates.filter((p) => {
+          if (state.signedIds.includes(p.id)) return false;
+          if (location.id !== "dock" && (p.id === "chovy" || p.id === "theshy")) return false;
+          return true;
+        }));
         const picked = [];
         while (picked.length < 3 && picked.length < pool.length) {
           const rest = pool.filter((p) => !picked.includes(p));
