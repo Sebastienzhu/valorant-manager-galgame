@@ -525,6 +525,31 @@
           ["只做短期顾问，把首发名额留给 CN 体系", 15, 5, "他比赞：尊重本土体系，我负责让发布会不冷场。"],
           ["让他全程只负责跳舞", -3, 6, "他眨眼：我爱跳舞，但我也会下烟。"]
         ]),
+        player("nats", "nAts", "老纳老衲", "哨位", "", 5, 24, 65, "#2d6a4f", "#b7e4c7", "外赛区影子大师。关键词：绕后、铁桶、老纳老衲。", [
+          ["请他和 CHICHOO 研究双哨位残局玄学", 27, 8, "nAts：残局不是等，是让对面不知道该等谁。"],
+          ["给他整张地图的暗处权限", 22, 6, "他点点头：我喜欢安静，也喜欢对面突然不安静。"],
+          ["让他每回合第一个冲正门", -8, 1, "nAts：这不是哨位，这是失业。"]
+        ]),
+        player("jinggg", "Jinggg", "爆点烟花", "决斗", "", 5, 24, 62, "#ff006e", "#ffbe0b", "外赛区爆点机器。关键词：冲、炸、别眨眼。", [
+          ["告诉他队伍需要一颗会走路的爆弹", 25, 8, "Jinggg：那我负责爆，你负责让队友跟上。"],
+          ["给他配双闪双补枪的豪华进点套餐", 22, 6, "他笑了：这套餐比外卖还快。"],
+          ["要求他慢摸 90 秒再交技能", -9, 0, "Jinggg：我听见自己的键盘在哭。"]
+        ]),
+        player("something", "something", "神秘枪男", "决斗", "", 5, 26, 68, "#7209b7", "#4cc9f0", "外赛区神秘变量。关键词：something、离谱、先别问。", [
+          ["说你要的就是 something special", 26, 9, "something：这句可以，我负责让对面觉得不科学。"],
+          ["给他自由开火权，但要求赛后解释一下发生了什么", 21, 6, "他点头：解释不一定有，击杀会有。"],
+          ["让他改名 anything 方便记", -7, 1, "他看着你：经理，神秘感没了。"]
+        ]),
+        player("demon1", "Demon1", "准星恶魔", "决斗", "", 5, 25, 66, "#d00000", "#fefae0", "外赛区冷脸枪男。关键词：准星、恶魔、别给他情绪题。", [
+          ["递上准星代码：哥，今天让对面别呼吸", 25, 8, "Demon1：话少点，枪多点。"],
+          ["承诺所有训练都围绕手感和空间设计", 22, 6, "他：可以，别让我在乱局里找意义。"],
+          ["安排他负责全队笑容管理", -8, 1, "他沉默得像一把没开镜的狙。"]
+        ]),
+        player("aspas", "aspas", "老帕", "决斗", "", 5, 28, 72, "#ff7b00", "#ffd60a", "外赛区顶级决斗。关键词：老霸道了、上阵父子兵、鞋底多粘。", [
+          ["老霸道了", 29, 10, "aspas 笑了：霸道可以，但进点要有人补。"],
+          ["告诉他你想看老帕和歪贼齐同心", 25, 8, "aspas：如果队里有人敢跟，我就敢开。"],
+          ["让他先从替补席证明自己", -10, 0, "aspas：经理，你这个梦有点大胆。"]
+        ]),
         player("kai", "Kai", "大心脏", "决斗", "DRG", 3, 17, 35, "#ef476f", "#ffd166", "关键局敢拉。关键词：大心脏、别怕。", [
           ["告诉他队伍缺一个敢把门踹开的人", 20, 5, "Kai：门踹开可以，后面要有人跟。"],
           ["给他明确首杀奖励和复盘保护", 18, 4, "他：敢打也要敢复盘。"],
@@ -707,9 +732,9 @@
 
         const targetRole = candidate.role === "自由人" ? "空栏位" : candidate.role;
         const current = state.roster[targetRole];
-        if (!current || favor >= current.favor) {
+        if (!current) {
           state.roster[targetRole] = { ...candidate, favor };
-          return { placed: true, slot: targetRole, replaced: Boolean(current) };
+          return { placed: true, slot: targetRole, replaced: false };
         }
 
         if (targetRole !== "空栏位") {
@@ -720,7 +745,17 @@
           }
         }
 
+        if (favor >= current.favor) {
+          state.roster[targetRole] = { ...candidate, favor };
+          return { placed: true, slot: targetRole, replaced: true };
+        }
+
         return { placed: false, slot: targetRole };
+      }
+
+      function rosterHas(...ids) {
+        const activeIds = Object.values(state.roster).map((player) => player.id);
+        return ids.every((id) => activeIds.includes(id));
       }
 
       function escapeHtml(value) {
@@ -963,6 +998,14 @@
           title = "拉完了 结局：跨界引援翻车";
           tag = "码头惨案复盘";
           text = `你签下了 ${state.trapSigned}，结果发现队里有个完全不会玩的。战术暂停里他说的东西没人听懂，队友都想四宫一了。老板看着阵容表沉默：银河战舰怎么开到码头去了？`;
+        } else if (rosterHas("aspas", "whzy")) {
+          title = "夯 结局：上阵父子兵";
+          tag = "老帕歪贼齐同心";
+          text = "上阵父子兵，歪贼老帕齐同心，鞋底多粘都能赢。发布会还没开始，老板已经把冠军皮肤的 PPT 标题写好了。";
+        } else if (rosterHas("nats", "chichoo")) {
+          title = "夯 结局：双影残局组";
+          tag = "老纳老衲去哪儿";
+          text = "老纳老衲，我们去哪里呀，有你在身高不高也不怕。双哨位把地图打成迷宫，对面进点像走亲戚，走着走着人没了。";
         } else if (filled >= 5 && score >= 430) {
           title = "夯 结局：银河战舰，启动！";
           tag = "冠军发布会";
