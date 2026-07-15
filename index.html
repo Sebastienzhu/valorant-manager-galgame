@@ -1,0 +1,937 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>银河战舰试训日</title>
+</head>
+<body>
+<div id="vn-root" class="vn-root">
+  <style>
+    .vn-root {
+      min-height: 100vh;
+      background: #111417;
+      color: #f4f7fb;
+      font-family: "Microsoft YaHei", "Segoe UI", Arial, sans-serif;
+      overflow: hidden;
+    }
+
+    .vn-shell {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      position: relative;
+      background:
+        radial-gradient(circle at 14% 10%, rgba(255, 86, 86, .34), transparent 26%),
+        radial-gradient(circle at 86% 18%, rgba(62, 203, 185, .24), transparent 28%),
+        linear-gradient(145deg, #15191e 0%, #222126 48%, #171a1f 100%);
+    }
+
+    .vn-shell::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: linear-gradient(to bottom, rgba(0,0,0,.82), rgba(0,0,0,.18));
+      pointer-events: none;
+    }
+
+    .topbar {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 18px clamp(16px, 4vw, 42px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .logo {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      background: #ff4d58;
+      color: #fff;
+      clip-path: polygon(50% 0%, 100% 32%, 88% 100%, 50% 78%, 12% 100%, 0 32%);
+      font-weight: 700;
+      flex: 0 0 auto;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: clamp(20px, 3.8vw, 36px);
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+
+    .brand p {
+      margin: 4px 0 0;
+      color: #b6c1ca;
+      font-size: 13px;
+    }
+
+    .stats {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .pill {
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(10, 12, 15, .58);
+      padding: 8px 10px;
+      border-radius: 6px;
+      color: #e9eef4;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .stage {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: minmax(280px, 1fr) minmax(280px, 440px);
+      align-items: end;
+      gap: clamp(18px, 4vw, 52px);
+      padding: 8px clamp(16px, 4vw, 42px) 24px;
+    }
+
+    .arena {
+      min-height: 430px;
+      display: grid;
+      align-items: end;
+      position: relative;
+    }
+
+    .map-title {
+      position: absolute;
+      top: 8px;
+      left: 0;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      color: #c7d3de;
+      font-size: 13px;
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      background: #35e0b6;
+      border-radius: 999px;
+      box-shadow: 0 0 16px #35e0b6;
+    }
+
+    .portrait-wrap {
+      display: grid;
+      grid-template-columns: minmax(180px, 360px) minmax(150px, 1fr);
+      align-items: end;
+      gap: 18px;
+    }
+
+    .portrait {
+      width: min(36vw, 340px);
+      min-width: 210px;
+      aspect-ratio: 4 / 5;
+      filter: drop-shadow(0 24px 42px rgba(0,0,0,.55));
+    }
+
+    .role-card {
+      align-self: center;
+      border-left: 3px solid #ff5a66;
+      padding: 14px 0 14px 16px;
+      color: #dde6ee;
+      background: linear-gradient(90deg, rgba(255,90,102,.12), transparent 88%);
+    }
+
+    .role-card strong {
+      display: block;
+      font-size: 20px;
+      margin-bottom: 6px;
+    }
+
+    .role-card span {
+      color: #aab7c2;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .panel {
+      align-self: stretch;
+      display: grid;
+      align-content: end;
+      gap: 12px;
+    }
+
+    .roster {
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(8, 10, 13, .54);
+      backdrop-filter: blur(12px);
+      border-radius: 8px;
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .roster h2 {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 500;
+      color: #f3f7fb;
+    }
+
+    .slots {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .slot {
+      min-height: 44px;
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 6px;
+      padding: 8px;
+      background: rgba(255,255,255,.045);
+      font-size: 12px;
+      color: #aeb9c3;
+    }
+
+    .slot b {
+      display: block;
+      color: #f1f5f9;
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+
+    .dialogue {
+      position: relative;
+      z-index: 2;
+      margin: 0 clamp(16px, 4vw, 42px) clamp(16px, 3vw, 30px);
+      border: 1px solid rgba(255,255,255,.2);
+      background: rgba(8, 11, 15, .82);
+      border-radius: 8px;
+      box-shadow: 0 20px 52px rgba(0,0,0,.34);
+      padding: 18px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .speaker {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .speaker b {
+      font-size: 18px;
+      font-weight: 500;
+      color: #fff;
+    }
+
+    .speaker span {
+      color: #9fb0bd;
+      font-size: 13px;
+      text-align: right;
+    }
+
+    .line {
+      min-height: 72px;
+      font-size: clamp(16px, 2.2vw, 19px);
+      line-height: 1.7;
+      color: #eef4f8;
+    }
+
+    .choices {
+      display: grid;
+      gap: 8px;
+    }
+
+    button.choice,
+    button.utility {
+      font: inherit;
+      color: #f5f8fb;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.08);
+      border-radius: 6px;
+      padding: 11px 12px;
+      text-align: left;
+      cursor: pointer;
+      transition: transform .16s ease, background .16s ease, border-color .16s ease;
+    }
+
+    button.choice:hover,
+    button.utility:hover {
+      transform: translateY(-1px);
+      border-color: rgba(255,90,102,.7);
+      background: rgba(255,90,102,.17);
+    }
+
+    button.utility {
+      text-align: center;
+      background: #ff4d58;
+      border-color: #ff4d58;
+      font-weight: 500;
+    }
+
+    .meta {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      color: #aeb9c3;
+      font-size: 13px;
+    }
+
+    .result-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .ending-card {
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      border-radius: 8px;
+      padding: 12px;
+      color: #dfe7ee;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .ending-card b {
+      display: block;
+      color: #fff;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+
+    @media (max-width: 820px) {
+      .topbar,
+      .stage {
+        grid-template-columns: 1fr;
+      }
+
+      .topbar {
+        align-items: flex-start;
+      }
+
+      .stats {
+        justify-content: flex-start;
+      }
+
+      .stage {
+        align-items: stretch;
+      }
+
+      .arena {
+        min-height: 330px;
+      }
+
+      .portrait-wrap {
+        grid-template-columns: minmax(160px, 260px) 1fr;
+      }
+
+      .portrait {
+        width: 240px;
+        min-width: 170px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .topbar {
+        display: grid;
+      }
+
+      .portrait-wrap {
+        grid-template-columns: 1fr;
+      }
+
+      .portrait {
+        width: min(78vw, 260px);
+        margin: 0 auto;
+      }
+
+      .role-card {
+        padding: 10px 0 10px 12px;
+      }
+
+      .slots,
+      .result-list {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+
+  <div class="vn-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo">V</div>
+        <div>
+          <h1>银河战舰试训日</h1>
+          <p>地点行动制电竞经理 galgame</p>
+        </div>
+      </div>
+      <div class="stats" id="stats"></div>
+    </header>
+
+    <main class="stage">
+      <section class="arena" aria-label="今日地点">
+        <div class="map-title"><span class="live-dot"></span><span id="map-name">基地会议室</span></div>
+        <div class="portrait-wrap">
+          <svg class="portrait" id="portrait" viewBox="0 0 240 300" role="img" aria-label="角色立绘"></svg>
+          <div class="role-card">
+            <strong id="role-title">战队经理</strong>
+            <span id="role-desc">每天选一个地点行动，从三位候选人里搭话。预算、声望、好感度都会影响银河战舰能不能起飞。</span>
+          </div>
+        </div>
+      </section>
+
+      <aside class="panel">
+        <section class="roster" aria-label="当前阵容">
+          <h2>当前阵容</h2>
+          <div class="slots" id="slots"></div>
+        </section>
+        <section class="roster" aria-label="结局条件">
+          <h2>四种结局</h2>
+          <div class="result-list">
+            <div class="ending-card"><b>夯</b>阵容、预算、声望全在线，银河战舰启动。</div>
+            <div class="ending-card"><b>人上人</b>阵容成型，季后赛稳了，但别贷款冠军。</div>
+            <div class="ending-card"><b>NPC</b>签了几位能打的，但经理像路人任务发布器。</div>
+            <div class="ending-card"><b>拉完了</b>签约失败太多，转型团建主播。</div>
+          </div>
+        </section>
+      </aside>
+    </main>
+
+    <section class="dialogue" aria-live="polite">
+      <div class="speaker">
+        <b id="speaker">系统</b>
+        <span id="tagline">点击选项推进</span>
+      </div>
+      <div class="line" id="line"></div>
+      <div class="meta" id="meta"></div>
+      <div class="choices" id="choices"></div>
+    </section>
+  </div>
+
+  <script>
+    (() => {
+      const maxDays = 10;
+      const roles = ["决斗", "先锋", "控场", "哨位", "自由人"];
+      const locations = [
+        { id: "snack", name: "零食路", desc: "EDG 选手最容易刷新的神秘小道。有人买水，有人找酱味大鸡。", fixed: ["zmjjkk", "chichoo", "nobody", "s1mon", "haodong"], event: "snack" },
+        { id: "canteen", name: "食堂", desc: "饭点信息量最大，大概率刷新 vookashu 和 rarga。", fixed: ["vookashu", "rarga"], event: "meal" },
+        { id: "club", name: "俱乐部", desc: "所有选手都有概率出现，经理的正经工作地点。", fixed: [], event: "club" },
+        { id: "store", name: "便利店打工", desc: "大概率遇到 Smoggy、whzy、ZmjjKK，还能赚一点预算。", fixed: ["smoggy", "whzy", "zmjjkk"], event: "work" },
+        { id: "ad", name: "打广告", desc: "消耗预算换声望。声望高了，狠人更愿意接电话。", fixed: [], event: "ad" }
+      ];
+
+      const candidates = [
+        player("zmjjkk", "ZmjjKK", "康康", "决斗", "EDG", 5, 28, 70, "#ff5a66", "#ffd166", "狙一响，会议室音量自动加二十。关键词：起狙、酱味大鸡、别急。", [
+          ["端上一份酱味大鸡：合同先别急，先补充火力", 29, 9, "康康盯着餐盒：这经理有理解，今天 Operator 都更香了。"],
+          ["承诺给他足够的起狙经济，但第二枪必须有人补", 22, 6, "他点头：帅可以，但体系里的帅最值钱。"],
+          ["说预算紧，只能先从短枪打起", -8, 0, "康康沉默：老板，你这不是面试，是纯 ECO。"]
+        ]),
+        player("whzy", "whzy", "年轻枪男", "自由人", "BLG", 4, 20, 50, "#00bbf9", "#fee440", "枪热，心也热。关键词：感觉是一个轻松的拿下、别毒奶。", [
+          ["跟他说：这赛季感觉是一个轻松的拿下", 24, 8, "whzy 笑了：话别说满，但这句我爱听。"],
+          ["给他老带新的轮换位，敢打但有人托底", 21, 5, "他点头：不是画饼，是给锅配锅盖。"],
+          ["开局就喊救世主，输了全队背你", -7, 2, "whzy 苦笑：哥，别奶，真别奶。"]
+        ]),
+        player("chichoo", "CHICHOO", "残局厨师长", "哨位", "EDG", 5, 24, 60, "#8b7cf6", "#ffb86c", "残局像慢火炖汤。关键词：绕后、读秒、真会玩。", [
+          ["把最后一包零食交给他保管，残局全权信任", 27, 8, "他收下零食：东西交给我，人头也交给我。"],
+          ["给他高自由度防守体系，让对面进迷宫", 23, 6, "CHICHOO：这个站位有意思，对面会怀疑地图更新了。"],
+          ["要求残局必须打快，方便剪短视频", -9, 1, "他抬头：短视频可以短，人生不能短。"]
+        ]),
+        player("siufatbb", "SiuFatBB", "阅读听力", "控场", "TE", 5, 25, 65, "#f72585", "#4cc9f0", "听脚步像做听力，读站位像做阅读。关键词：阅读理解、听力满分。", [
+          ["递给他一套六级听力真题：请读一下对面默认", 28, 9, "他翻了两页：这题简单，对面 A 小有人，B 点在演。"],
+          ["承诺控场位话语权，烟下给他来安排", 22, 6, "SiuFatBB：可以，阅读理解要有作答空间。"],
+          ["说烟随便封，反正枪硬就赢", -8, 0, "他合上本子：你这阅读理解零分。"]
+        ]),
+        player("nobody", "nobody", "信息位大师", "先锋", "EDG", 5, 23, 60, "#42d6a4", "#6fb7ff", "一边喝水一边把对面默认摸透。关键词：信息、纪律、别上头。", [
+          ["拿出三页 Haven 默认，请他现场改作业", 26, 7, "他改到第二页就笑了：你们这队，还有救。"],
+          ["承诺给他配两个会听话的突破手", 23, 7, "nobody：会听话？这四个字在 FPS 里很稀有。"],
+          ["让他多讲骚东西，节目效果第一", -5, 3, "他推了推键盘：节目效果可以有，但默认先走明白。"]
+        ]),
+        player("smoggy", "Smoggy", "递根烟", "自由人", "EDG", 5, 22, 55, "#4cc9f0", "#f72585", "低调稳定，补枪在线。关键词：递根烟、没声音但有击杀。", [
+          ["便利店门口递根烟：哥，来队里把枪线补上", 30, 8, "Smoggy 接过：能打。你这经理，懂社交也懂补枪。"],
+          ["给他最舒服的二点位和补枪路线", 24, 6, "他简短地回了两个字：能打。"],
+          ["安排他兼任剪辑、运营、赛后小作文", -10, 0, "他抬头：你招的是自由人，不是自由职业者。"]
+        ]),
+        player("vookashu", "Vookashu", "食堂枪男", "决斗", "TE", 4, 21, 45, "#fb8500", "#8ecae6", "食堂刷新率奇高，端着餐盘也能预瞄。关键词：先吃饭、再爆头。", [
+          ["给他加鸡腿：吃饱了才好把 A 点打穿", 25, 7, "Vookashu：这鸡腿有准星味，能签。"],
+          ["安排他饭后试训，避免低血糖 peek", 20, 5, "他点点头：经理懂人体工程学。"],
+          ["让他饿着打，模拟逆风局", -8, 0, "他看了看你：你这不是训练，是折磨。"]
+        ]),
+        player("rarga", "Rarga", "食堂快枪", "先锋", "TE", 4, 20, 45, "#2ec4b6", "#ff9f1c", "吃饭速度快，进点速度也快。关键词：干饭、闪出去。", [
+          ["给他留最大碗米饭：吃完这碗，B 点给你闪", 24, 7, "Rarga：饭到位，闪也到位。"],
+          ["承诺和决斗位一起设计提速战术", 20, 5, "他：有人跟就行，别让我一个人变成外卖。"],
+          ["让他负责食堂排队和所有开点", -6, 1, "他叹气：我可以快，但不是工具人。"]
+        ]),
+        player("s1mon", "S1Mon", "少年老成", "控场", "EDG", 4, 19, 50, "#a8dadc", "#e63946", "看起来年轻，下烟却很稳。关键词：未来、别催、能顶。", [
+          ["说你要的是长期核心，不是一天限定体验卡", 24, 6, "S1Mon：这个规划听着不像 PPT。"],
+          ["给他控场学习空间和老大哥保护", 21, 5, "他：可以，成长不是乱扔烟。"],
+          ["要求他第一天就变成世界第一控场", -7, 1, "他看着你：经理也需要成长。"]
+        ]),
+        player("nephh", "nephh", "冷静队长", "哨位", "PRX", 4, 23, 60, "#90be6d", "#577590", "少量外赛区 cameo。关键词：冷静、补位、别乱。", [
+          ["请他做短期补位核心，尊重 CN 体系", 20, 7, "nephh：可以，先把沟通词表统一。"],
+          ["给他自由度，让他把防守节奏稳住", 22, 6, "他点头：稳定，也是进攻的一部分。"],
+          ["只让他来教发布会英文", -4, 3, "他礼貌笑了：我也会打比赛。"]
+        ]),
+        player("haodong", "Haodong", "指挥备忘录", "控场", "EDG", 4, 19, 45, "#06d6a0", "#ef476f", "能把一团混乱写成战术。关键词：暂停、控图、听我说。", [
+          ["递上白板笔：船长，请把 Lotus B 点讲明白", 25, 7, "他开始画线：先把每个人的上头路线堵住。"],
+          ["承诺暂停权和战术话语权", 22, 5, "Haodong：那我能把相信选手落到具体回合。"],
+          ["说五个人一起 peek 就完了", -9, 1, "他盖上笔帽：这叫没有战术。"]
+        ]),
+        player("life", "Life", "冲锋开关", "决斗", "FPX", 4, 19, 40, "#f77f00", "#9ef01a", "一按 W，教练血压也跟着 W。关键词：提速、爆弹、刹车。", [
+          ["说你需要一把能把节奏点燃的火", 23, 8, "Life：我负责点火，你负责别让弹幕点我。"],
+          ["给他配套先锋闪光和复盘约束", 20, 5, "他笑了：能冲，也能刹车，这才叫职业。"],
+          ["要求每回合等 40 秒再动", -7, 0, "Life：那我不如去打回合制。"]
+        ]),
+        player("stew", "stew", "稳健哥", "哨位", "BLG", 3, 16, 35, "#577590", "#f9c74f", "稳得像门禁卡。关键词：别急、慢慢磨。", [
+          ["夸他像基地门禁：不该进的人一个都别进", 21, 5, "stew：这个比喻怪，但我收下了。"],
+          ["给他完整防守权限", 18, 4, "他：稳住就有机会。"],
+          ["嫌他不够节目效果", -6, 1, "他：赢比赛不是录综艺。"]
+        ]),
+        player("yosemite", "Yosemite", "山系突破", "先锋", "BLG", 3, 17, 35, "#43aa8b", "#f8961e", "名字像地图，打法像爬坡。关键词：向上、开路。", [
+          ["让他负责把进攻路线爬出来", 20, 5, "Yosemite：山路难走，但能走。"],
+          ["承诺和决斗位绑定练配合", 18, 4, "他：有人接我的信息就行。"],
+          ["说先锋只要会丢技能就行", -7, 0, "他：那你招机器人吧。"]
+        ]),
+        player("rin", "rin", "冷面枪线", "自由人", "WOL", 3, 15, 35, "#277da1", "#f9844a", "话不多，枪线不少。关键词：安静、补枪。", [
+          ["给他安静训练环境和固定补枪路线", 19, 4, "rin：可以，少点废话多点击杀。"],
+          ["承诺赛后采访不用硬整活", 17, 3, "他松了口气：这很重要。"],
+          ["让他每天讲三段脱口秀", -8, 2, "他看你的眼神已经像看敌方烟位。"]
+        ]),
+        player("monyet", "Monyet", "外援火力", "决斗", "PRX", 4, 24, 65, "#9b5de5", "#00f5d4", "少量外赛区 cameo。关键词：火力、语言包、别迷路。", [
+          ["准备中文报点小抄：先学“我能进”", 19, 7, "Monyet：这句实用，我喜欢。"],
+          ["让他做爆点奇兵，保留外援名额", 20, 6, "他：只要体系清楚，我能冲。"],
+          ["让他一个人解决全部问题", -6, 1, "他摇头：这是五个人的游戏。"]
+        ]),
+        player("boaster", "Boaster", "整活控场", "控场", "FNC", 4, 25, 70, "#e9c46a", "#2a9d8f", "少量外赛区 cameo。关键词：整活、控场、发布会不冷场。", [
+          ["请他当控场兼赛前舞蹈教练，中文报点过四级", 20, 9, "他大笑：第一句我学“别急，等烟”。"],
+          ["只做短期顾问，把首发名额留给 CN 体系", 15, 5, "他比赞：尊重本土体系，我负责让发布会不冷场。"],
+          ["让他全程只负责跳舞", -3, 6, "他眨眼：我爱跳舞，但我也会下烟。"]
+        ]),
+        player("kai", "Kai", "大心脏", "决斗", "DRG", 3, 17, 35, "#ef476f", "#ffd166", "关键局敢拉。关键词：大心脏、别怕。", [
+          ["告诉他队伍缺一个敢把门踹开的人", 20, 5, "Kai：门踹开可以，后面要有人跟。"],
+          ["给他明确首杀奖励和复盘保护", 18, 4, "他：敢打也要敢复盘。"],
+          ["要求只准保 KDA", -7, 0, "他：那我来干嘛？"]
+        ]),
+        player("nicc", "Nicc", "纪律先锋", "先锋", "TEC", 3, 16, 30, "#80ed99", "#4361ee", "执行力不错。关键词：纪律、信息。", [
+          ["夸他技能像打卡机一样准时", 18, 4, "Nicc：准时，是一种美德。"],
+          ["安排他做默认信息轴", 17, 3, "他：把信息拿满，枪法才有意义。"],
+          ["让他随缘丢技能", -6, 0, "他：随缘会输。"]
+        ]),
+        player("spring", "Spring", "春天来了", "自由人", "TEC", 3, 15, 30, "#74c69d", "#f72585", "名字听着就有复苏感。关键词：回暖、别急。", [
+          ["说战队需要春天，不需要寒冬", 18, 4, "Spring：这个饼不大，但挺暖。"],
+          ["给他轮换成长计划", 17, 3, "他：能上场，有复盘，就能进步。"],
+          ["让他改名 Summer 提前夺冠", -5, 1, "他：经理，季节不是这么运营的。"]
+        ]),
+        player("after", "after", "赛后总结", "控场", "TYL", 3, 15, 30, "#3a86ff", "#ffbe0b", "ID 很适合写复盘。关键词：after、总结、下一把。", [
+          ["请他把每次失误写成下一把的答案", 18, 4, "after：可以，赛后不是结尾，是下一局开头。"],
+          ["给他战术板和安静复盘室", 17, 3, "他：复盘环境比你想象中重要。"],
+          ["让他只负责赛后小作文", -6, 1, "他：我想赛中也有作用。"]
+        ]),
+        player("heybay", "heybay", "打招呼专家", "哨位", "TYL", 2, 13, 25, "#f3722c", "#90be6d", "见人先 hey，架枪再 bay。关键词：轻松、架点。", [
+          ["跟他对暗号：hey A 小，bay B 大", 17, 4, "heybay：经理，你这冷笑话有点能架。"],
+          ["给他固定防守点位", 15, 3, "他：有点位就有安全感。"],
+          ["让他负责全队社交账号问好", -5, 1, "他：我不是自动回复。"]
+        ]),
+        player("hfmi0dzjc9z7", "hfmi0dzjc9z7", "神秘代码哥", "先锋", "NOVA", 2, 14, 25, "#7209b7", "#4cc9f0", "名字像验证码，技能像谜题。关键词：复制粘贴、别输错。", [
+          ["认真把他的 ID 念对一遍", 19, 5, "他震惊：你是第一个没念成乱码的经理。"],
+          ["给他队内简称：验证码哥", 14, 3, "他：行，至少比念全名快。"],
+          ["要求他改名方便解说", -7, 0, "他：名字也是压迫感的一部分。"]
+        ]),
+        player("luoking", "luoking", "地图王", "控场", "WOL", 3, 16, 35, "#06d6a0", "#118ab2", "控图思路清楚。关键词：地图、节奏。", [
+          ["请他把地图控成导航软件", 18, 5, "luoking：路线规划中，前方有人蹲。"],
+          ["承诺让他参与选图 veto", 18, 4, "他：选图权是控场的尊严。"],
+          ["让他每张图都选自己喜欢的", -5, 1, "他：那叫任性，不叫 veto。"]
+        ]),
+        player("berlin", "Berlin", "墙体大师", "哨位", "AG", 2, 14, 25, "#adb5bd", "#ff4d58", "名字像城市，也像防线。关键词：墙、站位。", [
+          ["夸他的防守像一堵墙", 17, 4, "Berlin：墙可以倒，但不能白倒。"],
+          ["给他哨位道具研究时间", 16, 3, "他：研究越细，残局越舒服。"],
+          ["让他只负责合影站中间", -5, 1, "他：我不是背景板。"]
+        ])
+      ];
+
+      const state = {
+        day: 1,
+        budget: 100,
+        hype: 10,
+        roster: {},
+        signedIds: [],
+        favor: {},
+        talkedToday: false,
+        currentLocation: null,
+        currentOptions: [],
+        last: "经理状态：咖啡因在线，老板画饼在线。"
+      };
+
+      const statsEl = document.getElementById("stats");
+      const slotsEl = document.getElementById("slots");
+      const lineEl = document.getElementById("line");
+      const choicesEl = document.getElementById("choices");
+      const speakerEl = document.getElementById("speaker");
+      const taglineEl = document.getElementById("tagline");
+      const metaEl = document.getElementById("meta");
+      const mapEl = document.getElementById("map-name");
+      const roleTitleEl = document.getElementById("role-title");
+      const roleDescEl = document.getElementById("role-desc");
+      const portraitEl = document.getElementById("portrait");
+
+      function player(id, name, nick, role, team, tier, cost, minHype, color, accent, desc, choices) {
+        return {
+          id,
+          name,
+          nick,
+          role,
+          team,
+          tier,
+          cost,
+          minHype,
+          color,
+          accent,
+          desc,
+          choices: choices.map(([text, favor, hype, line]) => ({ text, favor, hype, line }))
+        };
+      }
+
+      function rand(max) {
+        return Math.floor(Math.random() * max);
+      }
+
+      function sample(pool, count) {
+        const copy = [...pool];
+        const out = [];
+        while (copy.length && out.length < count) {
+          out.push(copy.splice(rand(copy.length), 1)[0]);
+        }
+        return out;
+      }
+
+      function shuffle(list) {
+        const copy = [...list];
+        for (let i = copy.length - 1; i > 0; i -= 1) {
+          const j = rand(i + 1);
+          const temp = copy[i];
+          copy[i] = copy[j];
+          copy[j] = temp;
+        }
+        return copy;
+      }
+
+      function weightedPick(pool, location) {
+        const weights = pool.map((p) => {
+          const hypeBoost = Math.floor(state.hype / 35);
+          const strengthWeight = Math.max(1, 8 - p.tier + hypeBoost);
+          const locationBoost = location && location.fixed.includes(p.id) ? 9 : 0;
+          const clubBoost = location && location.id === "club" ? Math.max(0, p.tier - 2) : 0;
+          return strengthWeight + locationBoost + clubBoost;
+        });
+        const total = weights.reduce((sum, weight) => sum + weight, 0);
+        let roll = Math.random() * total;
+        for (let i = 0; i < pool.length; i += 1) {
+          roll -= weights[i];
+          if (roll <= 0) return pool[i];
+        }
+        return pool[0];
+      }
+
+      function buildLocationOptions(location) {
+        if (location.id === "ad") {
+          return [
+            { type: "event", title: "拍战队宣传片", cost: 18, hype: 30, line: "你把预算砸进宣传片，片尾写着：银河战舰，正在拼装。声望涨了，财务沉默了。" },
+            { type: "event", title: "接外设广告", cost: 8, hype: 18, line: "你接了外设广告，台词念了三遍才不笑场。声望涨得不多，但预算还能喘气。" },
+            { type: "event", title: "低成本发整活切片", cost: 3, hype: 9, line: "剪辑师用一杯奶茶预算剪出了百万播放感。老板说：这个性价比，夯。" }
+          ];
+        }
+
+        const pool = shuffle(candidates.filter((p) => !state.signedIds.includes(p.id)));
+        const picked = [];
+        while (picked.length < 3 && picked.length < pool.length) {
+          const rest = pool.filter((p) => !picked.includes(p));
+          const next = weightedPick(rest, location);
+          picked.push(next);
+        }
+        return shuffle(picked).map((candidate) => ({ type: "player", candidate }));
+      }
+
+      function escapeHtml(value) {
+        return String(value).replace(/[&<>"']/g, (char) => ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#39;"
+        })[char]);
+      }
+
+      function drawPortrait(candidate) {
+        const c = candidate || {
+          name: "经理",
+          nick: "战队经理",
+          role: "经理",
+          color: "#ff5a66",
+          accent: "#42d6a4"
+        };
+
+        portraitEl.innerHTML = `
+          <defs>
+            <linearGradient id="bodyGrad" x1="0" x2="1" y1="0" y2="1">
+              <stop offset="0" stop-color="${c.color}"/>
+              <stop offset="1" stop-color="#232a32"/>
+            </linearGradient>
+            <linearGradient id="visorGrad" x1="0" x2="1">
+              <stop offset="0" stop-color="${c.accent}"/>
+              <stop offset="1" stop-color="#ffffff"/>
+            </linearGradient>
+          </defs>
+          <path d="M34 292 C42 228 62 190 94 176 L146 176 C180 190 200 228 207 292 Z" fill="url(#bodyGrad)" opacity=".96"/>
+          <path d="M70 190 L90 148 L150 148 L172 190 C145 211 99 211 70 190 Z" fill="#202833"/>
+          <circle cx="120" cy="104" r="58" fill="#2b3440"/>
+          <path d="M70 109 C83 67 105 45 135 50 C162 55 179 80 176 113 C149 94 107 92 70 109 Z" fill="${c.color}"/>
+          <path d="M76 112 C104 95 141 95 166 112 L158 136 C134 148 104 148 82 136 Z" fill="url(#visorGrad)" opacity=".9"/>
+          <path d="M88 136 C105 151 138 151 154 136 C150 164 134 178 120 178 C106 178 92 164 88 136 Z" fill="#303b48"/>
+          <path d="M57 230 L26 249 L38 276 L79 251 Z" fill="${c.accent}" opacity=".9"/>
+          <path d="M183 230 L214 249 L202 276 L161 251 Z" fill="${c.accent}" opacity=".9"/>
+          <text x="120" y="244" text-anchor="middle" fill="#fff" font-size="22" font-weight="700">${escapeHtml(c.name)}</text>
+          <text x="120" y="268" text-anchor="middle" fill="#d9e3ea" font-size="13">${escapeHtml(c.role)} / ${escapeHtml(c.nick)}</text>
+        `;
+      }
+
+      function updateChrome(candidate) {
+        statsEl.innerHTML = `
+          <div class="pill">第 ${Math.min(state.day, maxDays)} 天 / ${maxDays}</div>
+          <div class="pill">预算 ${state.budget}</div>
+          <div class="pill">声望 ${state.hype}</div>
+          <div class="pill">已签 ${state.signedIds.length}</div>
+        `;
+
+        slotsEl.innerHTML = roles.map((role) => {
+          const player = state.roster[role];
+          return `<div class="slot"><b>${role}</b>${player ? escapeHtml(player.name) + " · " + escapeHtml(player.nick) : "空缺，老板正在做梦"}</div>`;
+        }).join("");
+
+        mapEl.textContent = state.currentLocation ? state.currentLocation.name : "基地会议室";
+        roleTitleEl.textContent = candidate ? `${candidate.name} · ${candidate.role}` : "战队经理";
+        roleDescEl.textContent = candidate ? `${candidate.team} · ${candidate.desc}` : "每天选一个地点行动，从三位候选人里搭话。预算、声望、好感度都会影响银河战舰能不能起飞。";
+        drawPortrait(candidate);
+      }
+
+      function setDialogue({ speaker, tag, line, meta = [], choices = [] }) {
+        speakerEl.textContent = speaker;
+        taglineEl.textContent = tag;
+        lineEl.textContent = line;
+        metaEl.innerHTML = meta.map((item) => `<span>${escapeHtml(item)}</span>`).join("");
+        choicesEl.innerHTML = "";
+        choices.forEach((choice) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = choice.primary ? "utility" : "choice";
+          button.textContent = choice.text;
+          button.addEventListener("click", choice.action);
+          choicesEl.appendChild(button);
+        });
+      }
+
+      function start() {
+        updateChrome(null);
+        setDialogue({
+          speaker: "老板",
+          tag: "新赛季立项会",
+          line: "你被任命为无畏契约新军经理。老板只给一句话：10 天内凑出银河战舰。预算可以花，但别把食堂也签没了。",
+          meta: ["每日流程：选择地点 -> 三选一搭话/行动", "声望越高，强力选手越愿意出现并接电话。"],
+          choices: [{ text: "开始第 1 天", primary: true, action: chooseLocation }]
+        });
+      }
+
+      function chooseLocation() {
+        state.currentLocation = null;
+        updateChrome(null);
+        setDialogue({
+          speaker: "第 " + state.day + " 天",
+          tag: "选择今日路线",
+          line: "今天去哪儿找人？不同地点会刷新不同选手，也可能影响预算和声望。经理的一天，从合理画饼开始。",
+          meta: [state.last],
+          choices: locations.map((location) => ({
+            text: `${location.name}：${location.desc}`,
+            action: () => enterLocation(location)
+          }))
+        });
+      }
+
+      function enterLocation(location) {
+        state.currentLocation = location;
+        const options = buildLocationOptions(location);
+        state.currentOptions = options;
+
+        if (location.event === "work") {
+          const gain = 6 + rand(15);
+          state.budget += gain;
+          state.last = `便利店打工赚到 ${gain} 预算，老板说你是财务型经理。`;
+        }
+
+        updateChrome(options.find((o) => o.candidate)?.candidate || null);
+
+        setDialogue({
+          speaker: location.name,
+          tag: "今日刷新",
+          line: location.event === "ad" ? "广告部把三个方案放到你面前。花钱买声望，买多了心疼，买少了没人接电话。" : `你来到${location.name}。今天能搭话的目标已经出现，只能选一个，别像排位选英雄一样犹豫到倒计时。`,
+          meta: [location.desc, state.last],
+          choices: options.map((option) => option.type === "event" ? {
+            text: `${option.title}（预算 -${option.cost}，声望 +${option.hype}）`,
+            action: () => doEvent(option)
+          } : {
+            text: `${option.candidate.name} · ${option.candidate.role} · ${option.candidate.team}（身价 ${option.candidate.cost}，声望门槛 ${option.candidate.minHype}）`,
+            action: () => talk(option.candidate)
+          })
+        });
+      }
+
+      function doEvent(event) {
+        if (state.budget < event.cost) {
+          state.last = "预算不够，广告商看你的眼神像看短枪局。";
+        } else {
+          state.budget -= event.cost;
+          state.hype += event.hype;
+          state.last = event.line;
+        }
+        updateChrome(null);
+        setDialogue({
+          speaker: "广告行动",
+          tag: "今日结算",
+          line: state.last,
+          meta: [`预算 ${state.budget}`, `声望 ${state.hype}`],
+          choices: [{ text: state.day >= maxDays ? "进入最终结算" : "结束今天", primary: true, action: nextDay }]
+        });
+      }
+
+      function talk(candidate) {
+        updateChrome(candidate);
+        setDialogue({
+          speaker: candidate.name,
+          tag: `${candidate.team} · ${candidate.nick}`,
+          line: `${candidate.name} 出现在${state.currentLocation.name}。你看了一眼报价表：预算要够，声望也不能太低，不然饼画得再圆也像 NPC 对话。`,
+          meta: [`位置：${candidate.role}`, `身价：${candidate.cost}`, `声望门槛：${candidate.minHype}`, `当前好感：${state.favor[candidate.id] || 35}`],
+          choices: candidate.choices.map((choice) => ({
+            text: choice.text,
+            action: () => resolveTalk(candidate, choice)
+          }))
+        });
+      }
+
+      function resolveTalk(candidate, choice) {
+        const before = state.favor[candidate.id] || 35;
+        const hypePenalty = state.hype < candidate.minHype ? Math.ceil((candidate.minHype - state.hype) / 8) : 0;
+        const budgetPenalty = state.budget < candidate.cost ? Math.ceil((candidate.cost - state.budget) / 4) : 0;
+        const favor = before + choice.favor - hypePenalty - budgetPenalty;
+        state.favor[candidate.id] = favor;
+        state.hype += choice.hype;
+
+        let result = "";
+        const canInvite = favor >= 58 && state.hype >= candidate.minHype && state.budget >= candidate.cost;
+        const almost = favor >= 50 && (state.hype < candidate.minHype || state.budget < candidate.cost);
+
+        if (canInvite) {
+          state.budget -= candidate.cost;
+          const current = state.roster[candidate.role];
+          if (!current || favor >= current.favor) {
+            state.roster[candidate.role] = { ...candidate, favor };
+            if (!state.signedIds.includes(candidate.id)) state.signedIds.push(candidate.id);
+            result = `${candidate.name} 答应加入，${candidate.role} 位更新。`;
+          } else {
+            result = `${candidate.name} 愿意来，但当前 ${candidate.role} 位好感更高，你选择暂不换人。`;
+          }
+        } else if (almost) {
+          result = `${candidate.name} 被你聊动了，但${state.hype < candidate.minHype ? "声望不够响" : "预算不够厚"}，他说下次再看看。`;
+        } else {
+          result = `${candidate.name} 礼貌离开。你感觉自己刚才像 NPC，头顶差一个黄色感叹号。`;
+        }
+
+        state.last = result;
+        updateChrome(candidate);
+        setDialogue({
+          speaker: candidate.name,
+          tag: canInvite ? "邀请成功" : "邀请未成",
+          line: `${choice.line} ${result}`,
+          meta: [`好感 ${favor}`, `声望 +${choice.hype}`, hypePenalty ? `声望惩罚 -${hypePenalty}` : "声望达标", budgetPenalty ? `预算压力 -${budgetPenalty}` : "预算达标"],
+          choices: [{ text: state.day >= maxDays ? "进入最终结算" : "结束今天", primary: true, action: nextDay }]
+        });
+      }
+
+      function nextDay() {
+        if (state.day >= maxDays) {
+          ending();
+          return;
+        }
+        state.day += 1;
+        chooseLocation();
+      }
+
+      function ending() {
+        const filled = roles.filter((role) => state.roster[role]).length;
+        const totalFavor = Object.values(state.roster).reduce((sum, player) => sum + player.favor + player.tier * 8, 0);
+        const score = totalFavor + state.hype + Math.max(state.budget, -20);
+        let title = "";
+        let text = "";
+        let tag = "";
+
+        if (filled >= 5 && score >= 430) {
+          title = "夯 结局：银河战舰，启动！";
+          tag = "冠军发布会";
+          text = "你凑齐了五个位置，预算虽然像打完长枪局一样残血，但阵容星味拉满。发布会刚开始，弹幕已经刷屏：“CN瓦怎么你了？” 老板在后台擦眼泪：这钱花得像经济学，也像玄学。";
+        } else if (filled >= 5 && score >= 330) {
+          title = "人上人 结局：季后赛稳了，但别贷款冠军";
+          tag = "新赛季出征";
+          text = "你的阵容足够能打，训练赛也有不少名场面。虽然还没到银河战舰级别，但至少不是纸飞机。教练组决定先把默认、补枪、暂停练明白，再谈冠军皮肤。";
+        } else if (filled >= 3 && score >= 230) {
+          title = "NPC 结局：有队，但经理像任务发布器";
+          tag = "常规赛开门";
+          text = "你签下了几位能打的选手，但阵容还有明显短板。粉丝说这队有说法，黑粉说你像路边 NPC：每天只会说“年轻人，我这里有个任务”。至少故事还没结束，下赛季还能继续画饼。";
+        } else {
+          title = "拉完了 结局：经理转型团建主播";
+          tag = "直播间标题已更新";
+          text = "签约谈判接连错过，你的银河战舰还停在 PPT 第一页。老板没有开除你，只是让你负责战队团建直播。你面对镜头苦笑：兄弟们，我真尽力了，下赛季一定不乱画饼。";
+        }
+
+        updateChrome(null);
+        setDialogue({
+          speaker: title,
+          tag,
+          line: text,
+          meta: [`完整位置 ${filled}/5`, `最终预算 ${state.budget}`, `最终声望 ${state.hype}`, `综合评分 ${score}`],
+          choices: [{ text: "重新开档，再造一艘更大的", primary: true, action: reset }]
+        });
+      }
+
+      function reset() {
+        state.day = 1;
+        state.budget = 100;
+        state.hype = 10;
+        state.roster = {};
+        state.signedIds = [];
+        state.favor = {};
+        state.currentLocation = null;
+        state.currentOptions = [];
+        state.last = "经理状态：咖啡因在线，老板画饼在线。";
+        start();
+      }
+
+      start();
+    })();
+  </script>
+</div>
+</body>
+</html>
