@@ -429,12 +429,13 @@
   <script>
     (() => {
       const maxDays = 10;
-      const roles = ["决斗", "先锋", "控场", "哨位", "自由人"];
+      const roles = ["决斗", "先锋", "控场", "哨位", "自由人", "教练"];
       const locations = [
         { id: "snack", name: "零食路", desc: "知名选手最容易刷新的神秘小道。有人买水，有人找酱味大鸡。", fixed: ["zmjjkk", "chichoo", "nobody", "s1mon", "haodong"], event: "snack" },
-        { id: "canteen", name: "食堂", desc: "饭点信息量最大，大概率刷新 vookashu 和 rarga。", fixed: ["vookashu", "rarga"], event: "meal" },
+        { id: "canteen", name: "食堂", desc: "饭点信息量最大，大概率刷新 vookashu、rarga 和正在取东西的 muggle。", fixed: ["vookashu", "rarga", "muggle"], event: "meal" },
         { id: "club", name: "俱乐部", desc: "所有选手都有概率出现，经理的正经工作地点。", fixed: [], event: "club" },
         { id: "store", name: "便利店打工", desc: "大概率遇到 Smoggy、whzy、ZmjjKK，还能赚一点预算。", fixed: ["smoggy", "whzy", "zmjjkk"], event: "work" },
+        { id: "dock", name: "码头", desc: "不知道去哪了，去码头整点薯条吧。那里韩国人扎堆，奇妙人物出现率很高。", fixed: ["stew", "chovy", "theshy"], event: "dock" },
         { id: "ad", name: "打广告", desc: "消耗预算换声望。声望高了，狠人更愿意接电话。", fixed: [], event: "ad" }
       ];
 
@@ -539,7 +540,7 @@
           ["给他轮换成长计划", 17, 3, "他：能上场，有复盘，就能进步。"],
           ["让他改名 Summer 提前夺冠", -5, 1, "他：经理，季节不是这么运营的。"]
         ]),
-        player("after", "after", "赛后总结", "控场", "TYL", 3, 15, 30, "#3a86ff", "#ffbe0b", "ID 很适合写复盘。关键词：after、总结、下一把。", [
+        player("after", "after", "隐藏教练", "教练", "TYL", 3, 15, 30, "#3a86ff", "#ffbe0b", "ID 很适合写复盘。隐藏教练位，关键词：after、总结、下一把。", [
           ["请他把每次失误写成下一把的答案", 18, 4, "after：可以，赛后不是结尾，是下一局开头。"],
           ["给他战术板和安静复盘室", 17, 3, "他：复盘环境比你想象中重要。"],
           ["让他只负责赛后小作文", -6, 1, "他：我想赛中也有作用。"]
@@ -563,6 +564,21 @@
           ["夸他的防守像一堵墙", 17, 4, "Berlin：墙可以倒，但不能白倒。"],
           ["给他哨位道具研究时间", 16, 3, "他：研究越细，残局越舒服。"],
           ["让他只负责合影站中间", -5, 1, "他：我不是背景板。"]
+        ]),
+        player("muggle", "muggle", "外卖守护神", "教练", "", 3, 12, 35, "#f4a261", "#2a9d8f", "经常在食堂取东西，像是在维护队伍生命线。隐藏后勤位，关键词：外卖、伙食、别饿着。", [
+          ["问他是不是在取全队外卖，并递上报销单", 24, 5, "muggle：懂了，这队至少不会饿着打加时。"],
+          ["承诺让他管理伙食预算，训练餐别再开盲盒", 21, 4, "他点头：吃明白了，枪也能明白一点。"],
+          ["让他顺手把所有外卖费自己垫了", -8, 0, "muggle：你这不是经理，是白嫖位。"]
+        ]),
+        player("chovy", "Chovy", "中路兵线", "自由人", "", 5, 18, 45, "#70e000", "#ffd60a", "码头奇遇人物。枪法未知，但看起来很会补兵。关键词：中路、兵线、别走错游戏。", [
+          ["去中路整点兵线吧", 24, 6, "Chovy：这句话我熟，但这里怎么没有小兵？"],
+          ["让他练补枪，不要练补刀", 15, 4, "他看了看地图：没有三路线，我有点不适应。"],
+          ["告诉他这游戏经济也很重要，先刷满再团", -6, 2, "他认真点头，然后全队开始等他发育。"]
+        ]),
+        player("theshy", "The Shy", "码头上单", "决斗", "", 5, 18, 45, "#f94144", "#90be6d", "码头奇遇人物。操作自信，游戏疑似不对。关键词：阿一古、别次别次、上路长手。", [
+          ["阿一古", 25, 7, "The Shy：阿一古！他看起来很开心，但鼠标已经在找上路。"],
+          ["别次别次", 22, 6, "The Shy 笑了：别次别次，然后问你 A 点是不是上路。"],
+          ["认真解释无畏契约没有上路", -5, 1, "他沉思：那我去哪压人？"]
         ])
       ];
 
@@ -573,6 +589,8 @@
         roster: {},
         signedIds: [],
         favor: {},
+        ratingBoost: 0,
+        trapSigned: "",
         talkedToday: false,
         currentLocation: null,
         currentOptions: [],
@@ -855,6 +873,18 @@
               state.budget += 8;
               result = "肥公子进了战队心情很好，资助了你 8 预算。";
             }
+            if (candidate.id === "after") {
+              state.ratingBoost += 80;
+              result = "after 加入教练组，你的队伍上升了一个评级。";
+            }
+            if (candidate.id === "muggle") {
+              state.ratingBoost += 40;
+              result = "muggle 加入后队伍的外卖费下降了，队内伙食不用愁了，队伍上升了半个评级。";
+            }
+            if (candidate.id === "chovy" || candidate.id === "theshy") {
+              state.trapSigned = candidate.name;
+              result = `${candidate.name} 加入了战队。你隐约感觉这个项目组理解错了“跨界引援”。`;
+            }
           } else {
             result = `${candidate.name} 愿意来，但当前 ${candidate.role} 位好感更高，你选择暂不换人。`;
           }
@@ -885,14 +915,19 @@
       }
 
       function ending() {
-        const filled = roles.filter((role) => state.roster[role]).length;
+        const competitiveRoles = roles.filter((role) => role !== "教练");
+        const filled = competitiveRoles.filter((role) => state.roster[role]).length;
         const totalFavor = Object.values(state.roster).reduce((sum, player) => sum + player.favor + player.tier * 8, 0);
-        const score = totalFavor + state.hype + Math.max(state.budget, -20);
+        const score = totalFavor + state.hype + Math.max(state.budget, -20) + state.ratingBoost;
         let title = "";
         let text = "";
         let tag = "";
 
-        if (filled >= 5 && score >= 430) {
+        if (state.trapSigned) {
+          title = "拉完了 结局：跨界引援翻车";
+          tag = "码头惨案复盘";
+          text = `你签下了 ${state.trapSigned}，结果发现队里有个完全不会玩的。战术暂停里他说的东西没人听懂，队友都想四宫一了。老板看着阵容表沉默：银河战舰怎么开到码头去了？`;
+        } else if (filled >= 5 && score >= 430) {
           title = "夯 结局：银河战舰，启动！";
           tag = "冠军发布会";
           text = "你凑齐了五个位置，预算虽然像打完长枪局一样残血，但阵容星味拉满。发布会刚开始，弹幕已经刷屏：“CN瓦怎么你了？” 老板在后台擦眼泪：这钱花得像经济学，也像玄学。";
@@ -927,6 +962,8 @@
         state.roster = {};
         state.signedIds = [];
         state.favor = {};
+        state.ratingBoost = 0;
+        state.trapSigned = "";
         state.currentLocation = null;
         state.currentOptions = [];
         state.last = "经理状态：咖啡因在线，老板画饼在线。";
