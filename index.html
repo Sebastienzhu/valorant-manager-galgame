@@ -1040,6 +1040,8 @@
 
       function ending() {
         const filled = roles.filter((role) => state.roster[role]).length;
+        const missingBaseRoles = roles.filter((role) => !state.roster[role]);
+        const hasFullBaseRoster = missingBaseRoles.length === 0;
         const totalFavor = Object.values(state.roster).reduce((sum, player) => sum + player.favor + player.tier * 8, 0);
         const comboBoosts = [];
         let comboScore = 0;
@@ -1065,7 +1067,17 @@
         let tag = "";
         const edgBondIds = ["smoggy", "nobody", "zmjjkk", "haodong", "s1mon", "jieni", "cb", "chichoo", "siufatbb"];
 
-        if (state.trapSigned) {
+        if (!hasFullBaseRoster) {
+          if (filled >= 3 && score >= 230) {
+            title = "NPC 结局：有队，但经理像任务发布器";
+            tag = "基础位置没凑齐";
+            text = `你的队伍还有基础位置缺人：${missingBaseRoles.join("、")}。羁绊再热血，比赛服也不能四个人开。老板把评级压到 NPC：先把五个位置填满，再谈银河战舰。`;
+          } else {
+            title = "拉完了 结局：经理转型团建主播";
+            tag = "直播间标题已更新";
+            text = `基础位置还缺：${missingBaseRoles.join("、")}。签约谈判接连错过，你的银河战舰还停在 PPT 第一页。老板没有开除你，只是让你负责战队团建直播。`;
+          }
+        } else if (state.trapSigned) {
           title = "拉完了 结局：跨界引援翻车";
           tag = "码头惨案复盘";
           text = `你签下了 ${state.trapSigned}，结果发现队里有个完全不会玩的。战术暂停里他说的东西没人听懂，队友都想四宫一了。老板看着阵容表沉默：银河战舰怎么开到码头去了？`;
