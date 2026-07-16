@@ -380,7 +380,7 @@
         <div class="logo">V</div>
         <div>
           <h1>VCT电竞经理</h1>
-          <p>地点行动制电竞经理 galgame · stable-20260716</p>
+          <p>地点行动制电竞经理 galgame · vct-20260716b</p>
         </div>
       </div>
       <div class="stats" id="stats"></div>
@@ -776,7 +776,8 @@
         }
 
         const openRole = roles.find((role) => role !== "空栏位" && !state.roster[role]);
-        const targetRole = candidate.role === "自由人" ? (openRole || "空栏位") : candidate.role;
+        const fixedRole = candidate.id === "siufatbb" ? "先锋" : candidate.role;
+        const targetRole = fixedRole === "自由人" ? (openRole || "空栏位") : fixedRole;
         const current = state.roster[targetRole];
         if (!current) {
           state.roster[targetRole] = { ...candidate, favor };
